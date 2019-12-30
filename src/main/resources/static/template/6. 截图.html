@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+
+<style>
+    /* 通过样式修改视频特效 */
+    .none {
+        -webkit-filter: none;
+    }
+
+    .grayscale {
+        -webkit-filter: grayscale(30);
+    }
+
+    .sepia {
+        -webkit-filter: sepia(30);
+    }
+
+    .saturate {
+        -webkit-filter: saturate(30);
+    }
+
+    .opacity {
+        -webkit-filter: opacity(50);
+    }
+</style>
+
+<body>
+<video src="" id="video1" autoplay playsinline></video>
+
+<!-- 视频特效 -->
+<div><label for="filter">filter</label>
+    <select name="" id="filter">
+        <option value="grayscale">grayscale</option>
+        <option value="sepia">sepia</option>
+        <option value="saturate">saturate</option>
+        <option value="opacity">opacity</option>
+    </select>
+</div>
+
+<!-- 截图 -->
+<button id="snapshot">snapshot</button>
+<canvas id="picture" style="width: 600px; height: 400px"></canvas>
+
+
+
+    <script>
+        var video = document.querySelector("video#video1");
+
+        let snapshot = document.getElementById("snapshot");
+        let canvas = document.getElementById("picture");
+
+
+        navigator.mediaDevices.getUserMedia = navigator.mediaDevices.getUserMedia
+                    || navigator.mediaDevices.webkitGetUserMedia        // chrome
+                    || navigator.mediaDevices.mozGetUserMedia;          // fireFox
+
+
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia){
+            alert("not support!")
+        }
+
+        var constraints = {
+          audio: true,
+          video: true
+        };
+
+        function getMediaStream (stream) {
+            video.srcObject = stream;
+        }
+
+        function handleError(error) {
+            console.log(error);
+        }
+
+        // 获取音频
+        navigator.mediaDevices.getUserMedia(constraints)
+                                    .then(getMediaStream).catch(handleError);
+
+        // 动态切换
+        let filter = document.querySelector("select#filter");
+        function changeEffect(){
+            video.className = filter.value;
+        }
+        // 切换特效
+        filter.onchange = changeEffect;
+
+        //////////////////////////////////////////////////////
+        //               点击截图
+        //////////////////////////////////////////////////////
+        snapshot.onclick = function () {
+            // 加载 video 上的特效也可以用在 canvas 上
+            // 保存的时候带不上特效
+            canvas.className = filter.value;
+            canvas.getContext("2d").drawImage(
+                video,
+                0, 0,   // 起始点
+                canvas.width, canvas.height
+            )
+        }
+
+
+
+    </script>
+</body>
+</html>

@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta http-equiv="X-UA-Compatible" content="ie=edge"/>
+    <title>Document</title>
+
+</head>
+
+<body>
+
+<div><label for="audioInput">audioInput</label> <select name="" id="audioInput"></select></div>
+<div><label for="audioOutput">audioOutput</label> <select name="" id="audioOutput"></select></div>
+<div><label for="videoSource">videoSource</label> <select name="" id="videoSource"></select></div>
+
+<script>
+    let audioInput = document.querySelector("select#audioInput");
+    let audioOutput = document.querySelector("select#audioOutput");
+    let videoSource = document.querySelector("select#videoSource");
+
+    navigator.mediaDevices.enumerateDevices().then(getDevices, handleError);
+
+    /**
+     * 显示所有设备信息
+     *
+     * @param devicesInfo
+     */
+    function getDevices(devicesInfo) {
+        devicesInfo.forEach((deviceInfo) => {
+            console.log(`deviceId: ${deviceInfo.deviceId}, label: ${deviceInfo.label}, kind: ${deviceInfo.kind}, groupId: ${deviceInfo.groupId}`);
+            var option = document.createElement("option");
+            option.text = deviceInfo.label;
+            option.value = deviceInfo.deviceId;
+            if (deviceInfo.kind === "audioinput") {
+                audioInput.appendChild(option);
+            } else if (deviceInfo.kind === "audiooutput") {
+                audioOutput.appendChild(option);
+            } else {
+                videoSource.appendChild(option);
+            }
+
+
+        })
+    }
+
+    function handleError(err) {
+        console.log(`err.name: ${err.name}, err.message: ${err.message}`)
+    }
+
+</script>
+</body>
+</html>

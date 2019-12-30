@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<!-- controls 表示显示音频组件-->
+<audio src="" controls id="audio1"></audio>
+<script>
+    var audio = document.querySelector("audio#audio1");
+
+    navigator.mediaDevices.getUserMedia = navigator.mediaDevices.getUserMedia
+        || navigator.mediaDevices.webkitGetUserMedia        // chrome
+        || navigator.mediaDevices.mozGetUserMedia;          // fireFox
+    // 兼容性设置2 使用 adapter.js
+
+
+    // 判断是否能使用 webRTC
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        alert("not support!")
+    }
+
+    var constraints = {
+        audio: true,
+        // 禁止视频
+        video: false
+    };
+
+    function getMediaStream(stream) {
+        // 给 audio 组件设置源
+        audio.srcObject = stream;
+    }
+
+    function handleError(error) {
+        console.log(error);
+    }
+
+    // 获取音频
+    navigator.mediaDevices.getUserMedia(constraints)
+        .then(getMediaStream).catch(handleError);
+
+
+</script>
+</body>
+</html>

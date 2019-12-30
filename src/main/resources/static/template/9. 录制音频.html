@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<!--autoplay自动播放 playsinline嵌入页面播放 -->
+<video src="" id="video1" autoplay playsinline></video>
+<button type="button" id="start">start</button>
+<button type="button" id="stop">stop</button>
+<button type="button" id="pause">pause</button>
+<button type="button" id="resume">resume</button>
+<button type="button" id="play">play</button>
+<button type="button" id="download">download</button>
+<br>
+<video src="" id="playVideo"></video>
+<br>
+<script>
+    var video = document.querySelector("video#video1");
+
+    var start = document.querySelector("button#start");
+    var stop = document.querySelector("button#stop");
+    var pause = document.querySelector("button#pause");
+    var resume = document.querySelector("button#resume");
+    var play = document.querySelector("button#play");
+    var download = document.querySelector("button#download");
+
+    var playVideo = document.querySelector("video#playVideo");
+
+
+    navigator.mediaDevices.getUserMedia = navigator.mediaDevices.getUserMedia
+        || navigator.mediaDevices.webkitGetUserMedia        // chrome
+        || navigator.mediaDevices.mozGetUserMedia;          // fireFox
+
+
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        alert("not support!")
+    }
+
+    var constraints = {
+        audio: false,
+        video: true
+    };
+
+    function getMediaStream(stream) {
+        video.srcObject = stream;
+        // 将 stream 绑定到全局
+        window.stream = stream;
+    }
+
+    function handleError(error) {
+        console.log(error);
+    }
+
+    // 获取音频
+    navigator.mediaDevices.getUserMedia(constraints)
+        .then(getMediaStream).catch(handleError);
+
+    let buffer = [];
+    let globalMediaRecorder = null;
+
+    /**
+     * 开始录制
+     */
+    start.onclick = () => {
+        let options = {
+            mimeType: "video/webm;codecs=vp8"
+        };
+        if (MediaRecorder.isTypeSupported(options)) {
+            alert(`${options.mimeType}格式不支持`);
+            return;
+        }
+        // 清空缓存
+        buffer = [];
+
+        mediaRecorder = new MediaRecorder(window.stream, options);
+        globalMediaRecorder = mediaRecorder;
+        // 给录制视频后产生的ondataavaiable事件设置一个处理函数
+        mediaRecorder.ondataavailable = _handle_dataavailable;
+        // 开始录制
+        mediaRecorder.start(10);
+
+        start.disabled = true;
+        stop.disabled = false;
+    };
+
+    /**
+     * 停止录制
+     */
+    stop.onclick = () => {
+        if (globalMediaRecorder === null) {
+            alert("未开始录制");
+            return;
+        }
+        globalMediaRecorder.stop();
+
+        stop.disabled = true;
+        start.disabled = false;
+    };
+
+    /**
+     *  暂停录制
+     */
+    pause.onclick = () => {
+        if (globalMediaRecorder === null) {
+            alert("未开始录制");
+            return;
+        }
+        globalMediaRecorder.pause();
+
+        pause.disabled = true;
+        resume.disabled = false;
+    };
+
+    resume.onclick = () => {
+
+        if (globalMediaRecorder === null) {
+            alert("未开始录制");
+            return;
+        }
+        globalMediaRecorder.resume();
+
+        pause.disabled = false;
+        resume.disabled = true;
+    };
+
+    /**
+     * 将录制的视频进行播放
+     */
+    play.onclick = () => {
+        if(buffer === null || buffer.length === 0){
+            alert("录制缓存为空");
+            return;
+        }
+        start.disabled = false;
+        stop.disabled = false;
+
+        var blob = new Blob(buffer, {type: "video/webm"});
+        playVideo.src = window.URL.createObjectURL(blob);
+        playVideo.srcObject = null;
+        playVideo.controls = true;
+        // 视频播放
+        playVideo.play();
+
+    };
+
+    download.onclick = ()=>{
+      let blob = new Blob(buffer, {type: "video/webm"}) ;
+      let url = window.URL.createObjectURL(blob);
+
+      let a = document.createElement("a");
+      a.style.display = "none";
+      a.download = "视频名称.webm";
+      // 记得设置地址
+      a.href = url;
+
+      // 自动下载
+      a.click();
+    };
+
+    /**
+     * 处理 MediaRecorder.ondataavailable事件
+     * 其实就是将录制的数据存储到缓存中
+     *
+     * @param e
+     * @private
+     */
+    function _handle_dataavailable(e) {
+        if (e && e.data && e.data.size > 0) {
+            // 存储录制的数据
+            buffer.push(e.data);
+        }
+    }
+
+</script>
+</body>
+</html>

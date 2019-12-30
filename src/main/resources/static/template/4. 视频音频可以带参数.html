@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<div><label for="audioInput">audioInput</label> <select name="" id="audioInput"></select></div>
+<div><label for="audioOutput">audioOutput</label> <select name="" id="audioOutput"></select></div>
+<div><label for="videoSource">videoSource</label> <select name="" id="videoSource"></select></div>
+<video src="" id="video1" autoplay playsinline></video>
+<script>
+    let audioInput = document.querySelector("select#audioInput");
+    let audioOutput = document.querySelector("select#audioOutput");
+    let videoSource = document.querySelector("select#videoSource");
+
+    let video = document.querySelector("video#video1");
+
+    navigator.mediaDevices.getUserMedia = navigator.mediaDevices.getUserMedia
+        || navigator.mediaDevices.webkitGetUserMedia        // chrome
+        || navigator.mediaDevices.mozGetUserMedia;          // fireFox
+
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        alert("not support!")
+    }
+
+
+    function getMediaStream(stream) {
+        video.srcObject = stream;
+        return navigator.mediaDevices.enumerateDevices();
+    }
+
+    function getDevices(devicesInfo) {
+        devicesInfo.forEach((deviceInfo) => {
+            console.log(`deviceId: ${deviceInfo.deviceId}, label: ${deviceInfo.label}, kind: ${deviceInfo.kind}, groupId: ${deviceInfo.groupId}`);
+            var option = document.createElement("option");
+            option.text = deviceInfo.label;
+            option.value = deviceInfo.deviceId;
+            if (deviceInfo.kind === "audioinput") {
+                audioInput.appendChild(option);
+            } else if (deviceInfo.kind === "audiooutput") {
+                audioOutput.appendChild(option);
+            } else {
+                videoSource.appendChild(option);
+            }
+        })
+    }
+
+
+    function handleError(err) {
+        console.log(`err.name: ${err.name}, err.message: ${err.message}`)
+    }
+
+    function start() {
+        let deviceId = videoSource.value;
+
+        let constraints = {
+            audio: false,
+            video: {
+                // 设备为空时会使用默认的
+                deviceId: deviceId?deviceId:undefined
+            }
+        };
+
+        // 获取音频
+        navigator.mediaDevices.getUserMedia(constraints)
+            .then(getMediaStream)
+            .then(getDevices)
+            .catch(handleError);
+    }
+    start();
+
+    // selector 选择时候重新加载
+    // 有点bug，暂时无视
+    videoSource.onchange = start;
+</script>
+</body>
+</html>

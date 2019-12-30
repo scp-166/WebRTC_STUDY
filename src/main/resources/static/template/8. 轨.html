@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<!--autoplay自动播放 playsinline嵌入页面播放 -->
+<video src="" id="video1" autoplay playsinline></video>
+<br>
+<text id="text"></text>
+    <script>
+        var video = document.querySelector("video#video1");
+
+        var text = document.getElementById("text");
+
+
+        navigator.mediaDevices.getUserMedia = navigator.mediaDevices.getUserMedia
+                    || navigator.mediaDevices.webkitGetUserMedia        // chrome
+                    || navigator.mediaDevices.mozGetUserMedia;          // fireFox
+
+
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia){
+            alert("not support!")
+        }
+
+        var constraints = {
+          audio: false,
+          video: {
+              // 设置下帧数,看是否起效
+              frameRate: 20
+          }
+        };
+
+        function getMediaStream (stream) {
+            video.srcObject = stream;
+
+            // 获得视频轨
+            let videoTrack = stream.getVideoTracks()[0];
+            // 获得该轨上的视频约束
+            let videoConstraints = videoTrack.getSettings();
+            text.innerText = JSON.stringify(videoConstraints, null, 2);
+            console.log(text.innerText);
+        }
+
+        function handleError(error) {
+            console.log(error);
+        }
+
+        // 获取音频
+        navigator.mediaDevices.getUserMedia(constraints)
+                                    .then(getMediaStream).catch(handleError);
+
+
+    </script>
+</body>
+</html>

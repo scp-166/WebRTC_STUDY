@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<!--autoplay自动播放 playsinline嵌入页面播放 -->
+<video src="" id="video1" autoplay playsinline></video>o
+    <script>
+        var video = document.querySelector("video#video1");
+
+
+        // 兼容性设置1
+        navigator.mediaDevices.getUserMedia = navigator.mediaDevices.getUserMedia
+                    || navigator.mediaDevices.webkitGetUserMedia        // chrome
+                    || navigator.mediaDevices.mozGetUserMedia;          // fireFox
+        // 兼容性设置2 使用 adapter.js
+
+
+        // 判断是否能使用 webRTC
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia){
+            alert("not support!")
+        }
+
+        var constraints = {
+          audio: true,
+          video: true
+        };
+
+        function getMediaStream (stream) {
+            video.srcObject = stream;
+        }
+
+        function handleError(error) {
+            console.log(error);
+        }
+
+        // 获取音频
+        navigator.mediaDevices.getUserMedia(constraints)
+                                    .then(getMediaStream).catch(handleError);
+
+
+    </script>
+</body>
+</html>

@@ -1,0 +1,15 @@
+server:
+  port: 8000
+  tomcat:
+    uri-encoding: UTF-8
+    basedir: D:/hehe                # tomcat临时文件存储位置
+
+  # https://myssl.com/csr_create.html 生成 keytools 指令
+  # 然后在 shell 中生成 .jks 文件
+  # 回车会需要你输入密码
+  ssl:
+    key-store: demo.com.jks         # 文件存储位置
+    key-alias: demo.com             # 别名 上面网址产生的代码返回的指令有一个 --alias 选项
+    key-store-type: JKS             # 类型
+    key-store-password: nekosighed  # 上面 shell 中会确认生成的面膜
+    enabled: true

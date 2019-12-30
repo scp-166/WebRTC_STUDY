@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style>
+        /* 通过样式修改视频特效 */
+        .none {
+            -webkit-filter: none;
+        }
+
+        .grayscale {
+            -webkit-filter: grayscale(30);
+        }
+
+        .sepia {
+            -webkit-filter: sepia(30);
+        }
+
+        .saturate {
+            -webkit-filter: saturate(30);
+        }
+
+        .opacity {
+            -webkit-filter: opacity(50);
+        }
+    </style>
+</head>
+<body>
+<div><label for="audioInput">audioInput</label> <select name="" id="audioInput"></select></div>
+<div><label for="audioOutput">audioOutput</label> <select name="" id="audioOutput"></select></div>
+<div><label for="videoSource">videoSource</label><select name="" id="videoSource"></select>
+</div>
+
+<!-- 视频特效 -->
+<div><label for="filter">filter</label>
+    <select name="" id="filter">
+        <option value="grayscale">grayscale</option>
+        <option value="sepia">sepia</option>
+        <option value="saturate">saturate</option>
+        <option value="opacity">opacity</option>
+    </select>
+</div>
+
+<video src="" id="video1" autoplay playsinline class="none"></video>
+<script>
+    let audioInput = document.querySelector("select#audioInput");
+    let audioOutput = document.querySelector("select#audioOutput");
+    let videoSource = document.querySelector("select#videoSource");
+
+    let video = document.querySelector("video#video1");
+
+    navigator.mediaDevices.getUserMedia = navigator.mediaDevices.getUserMedia
+        || navigator.mediaDevices.webkitGetUserMedia        // chrome
+        || navigator.mediaDevices.mozGetUserMedia;          // fireFox
+
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        alert("not support!")
+    }
+
+
+    var constraints = {
+        audio: false,
+        video: true
+    };
+
+    /**
+     * 获得 MediaStream
+     *
+     * @param stream
+     */
+    function getMediaStream(stream) {
+        video.srcObject = stream;
+        return navigator.mediaDevices.enumerateDevices();
+    }
+
+
+    /**
+     * 查询设备信息
+     *
+     * @param devicesInfo
+     */
+    function getDevices(devicesInfo) {
+        devicesInfo.forEach((deviceInfo) => {
+            console.log(`deviceId: ${deviceInfo.deviceId}, label: ${deviceInfo.label}, kind: ${deviceInfo.kind}, groupId: ${deviceInfo.groupId}`);
+            var option = document.createElement("option");
+            option.text = deviceInfo.label;
+            option.value = deviceInfo.deviceId;
+            if (deviceInfo.kind === "audioinput") {
+                audioInput.appendChild(option);
+            } else if (deviceInfo.kind === "audiooutput") {
+                audioOutput.appendChild(option);
+            } else {
+                videoSource.appendChild(option);
+            }
+        })
+    }
+
+    /**
+     * 处理异常
+     *
+     * @param err
+     */
+    function handleError(err) {
+        console.log(`err.name: ${err.name}, err.message: ${err.message}`)
+    }
+
+    // 获取音频
+    navigator.mediaDevices.getUserMedia(constraints)
+        .then(getMediaStream)
+        .then(getDevices)        // 处理 getMediaStream 返回值
+        .catch(handleError);
+
+    // 动态切换
+    let filter = document.querySelector("select#filter");
+    function changeEffect(){
+        video.className = filter.value;
+    }
+    // 切换特效
+    filter.onchange = changeEffect;
+</script>
+</body>
+</html>
